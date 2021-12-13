@@ -6,14 +6,31 @@ import { ProxyList } from './ProxyList';
 import { DownloadJobController } from './DownloadJobController';
 import { DownloadJobFactory } from './DownloadJobFactory';
 import { DownloadEmitter } from './DownloadEmitter';
-import { IDownloadJob, FrequentJob, ScheduledJob } from './DownloadJobs';
+import type { IDownloadJob } from './DownloadJobs';
+import { FrequentJob, ScheduledJob } from './DownloadJobs';
 import { EventEmitter } from 'events';
 
 let Container: di.Container;
 let controller: DownloadJobController;
+/* -------------------------------------------------------------------------- */
+/*                                    util                                    */
+/* -------------------------------------------------------------------------- */
+const startEarlierInSeconds = 0;
+const getCurrentJob: ReflectFn<IDownloadJob> = (jobController: DownloadJobController) =>
+  Reflect.get(jobController, 'currentJob') as IDownloadJob;
+const setHourlyJob: ReflectFn<void> = (jobController: DownloadJobController) =>
+  Reflect.set(jobController, 'currentJob', new ScheduledJob(moment(), startEarlierInSeconds, () => Promise.resolve()));
+const setSpamJob: ReflectFn<void> = (jobController: DownloadJobController) =>
+  Reflect.set(jobController, 'currentJob', new FrequentJob(startEarlierInSeconds, () => Promise.resolve()));
+
+type ReflectFn<T> = (jobController: DownloadJobController) => T;
+
+/* -------------------------------------------------------------------------- */
+/*                                    test                                    */
+/* -------------------------------------------------------------------------- */
 
 describe('pickJobBy (updateDate) method', () => {
-  const updateDate = moment();
+  let updateDate = moment();
 
   describe('if updated', () => {
     const updated = true;
@@ -33,7 +50,9 @@ describe('pickJobBy (updateDate) method', () => {
     });
 
     it('should pick and run `SpamJob` if `updateDate` in past more than one hour', () => {
-      const updateDate = moment().subtract(2, 'hours');
+      const hours = 2;
+
+      updateDate = moment().subtract(hours, 'hours');
 
       controller.use(updated, updateDate);
 
@@ -64,7 +83,7 @@ describe('pickJobBy (updateDate) method', () => {
 /*                                    setup                                   */
 /* -------------------------------------------------------------------------- */
 beforeAll(() => {
-  Object.getPrototypeOf(EventEmitter.prototype).constructor = Object;
+  Object.getPrototypeOf(EventEmitter.prototype).constructor = Object; // eslint-disable-line
   Container = new di.Container({ skipBaseClassChecks: true });
 
   Container.bind(TYPES.DownloadJobController).to(DownloadJobController);
@@ -87,13 +106,3 @@ beforeEach(() => {
 afterEach(() => {
   controller.clear();
 });
-
-/* -------------------------------------------------------------------------- */
-/*                                    util                                    */
-/* -------------------------------------------------------------------------- */
-const getCurrentJob = (jobController: DownloadJobController) =>
-  Reflect.get(jobController, 'currentJob') as IDownloadJob;
-const setHourlyJob = (jobController: DownloadJobController) =>
-  Reflect.set(jobController, 'currentJob', new ScheduledJob(moment(), 0, () => Promise.resolve()));
-const setSpamJob = (jobController: DownloadJobController) =>
-  Reflect.set(jobController, 'currentJob', new FrequentJob(0, () => Promise.resolve()));

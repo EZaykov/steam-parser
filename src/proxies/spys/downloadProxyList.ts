@@ -1,8 +1,7 @@
-import * as _ from 'lodash';
 import * as moment from 'moment';
 import fetch from 'node-fetch';
 import { ProxyList } from './ProxyList';
-import { Proxy } from './Proxy';
+import type { Proxy } from './Proxy';
 
 const URL = 'http://spys.me/proxy.txt';
 
@@ -14,11 +13,18 @@ export const downloadProxyList: DownloadProxyList = () =>
 function parseProxyListTxt(text: string): ProxyList {
   const allLines = text.split('\n');
   const headerIndentLineIndex = allLines.indexOf('');
+  const headerExtraLinesToCut = 1;
   const footerIndentLineIndex = allLines.lastIndexOf('\r');
-  const proxyLines = allLines.slice(headerIndentLineIndex + 1, footerIndentLineIndex);
+  const proxyLines = allLines.slice(
+    headerIndentLineIndex + headerExtraLinesToCut,
+    footerIndentLineIndex
+  );
   const proxies = proxyLines.map(v => parseProxyLine(v));
+  const firstLineIndex = 0;
+  const firstLine = allLines[firstLineIndex];
+
   return new ProxyList(
-    parseProxyListUpdateDate(allLines[0]),
+    parseProxyListUpdateDate(firstLine),
     proxies
   );
 }
@@ -26,6 +32,7 @@ function parseProxyListTxt(text: string): ProxyList {
 function parseProxyLine(proxyLine: string): Proxy {
   const [address, description, googlePassed] = proxyLine.split(' ');
   const [countryCode, anonymous, sslSupport] = description.replace('!', '').split('-');
+
   return {
     address: address.trim(),
     description: {
@@ -34,12 +41,20 @@ function parseProxyLine(proxyLine: string): Proxy {
       anonymous: anonymous.trim() !== 'N',
       sslSupport: !!sslSupport && sslSupport.trim() === 'S'
     }
-  }
+  };
 }
 
 function parseProxyListUpdateDate(firstLine: string): moment.Moment {
-  const unparsedDate = firstLine.match(/updated at (.*)/)![1];
-  return moment(unparsedDate, 'ddd, DD MMM YY HH:mm:ss Z');
+  const parsedFirstLine = /updated at (.*)/.exec(firstLine);
+
+  if (!parsedFirstLine) {
+    throw new Error('unable to parse a date');
+  }
+
+  const parsedDateIndex = 1;
+  const parsedDate = parsedFirstLine[parsedDateIndex];
+
+  return moment(parsedDate, 'ddd, DD MMM YY HH:mm:ss Z');
 }
 
 export type DownloadProxyList = () => Promise<ProxyList>;

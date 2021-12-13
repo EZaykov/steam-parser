@@ -1,4 +1,4 @@
-export type Proxy = {
+export interface Proxy {
   readonly address: string;
   readonly description: {
     countryCode: string;

@@ -5,10 +5,11 @@ let proxyList: ProxyList;
 
 describe('isUpdatedLastHour method', () => {
   it('should return `true` if passed `updateDate` within 1 past hour range', () => {
-    const updateDate = moment().subtract(30, 'minutes');
+    const hourMiddleInMinutes = 30;
+    const updateDate = moment().subtract(hourMiddleInMinutes, 'minutes');
 
     proxyList = new ProxyList(updateDate, []);
 
-    expect(proxyList.isUpdatedLastHour).toBeTruthy();
+    expect(() => proxyList.isUpdatedLastHour()).toBeTruthy();
   });
 });

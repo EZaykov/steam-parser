@@ -1,7 +1,7 @@
 import { injectable, inject } from 'inversify';
 import { FrequentJob, ScheduledJob } from './DownloadJobs';
 import { DownloadProxyList } from './downloadProxyList';
-import type { IDownloadEmitter } from './DownloadEmitter';
+import { IDownloadEmitter } from './DownloadEmitter';
 import { TYPES } from './types';
 
 const START_EARLIER_IN_MINUTES = 5;
@@ -9,11 +9,11 @@ const FREQUENCY_IN_SECONDS = 30;
 
 @injectable()
 export class DownloadJobFactory {
-  public createScheduledJob(fireDate: moment.Moment) {
+  public createScheduledJob(fireDate: moment.Moment): ScheduledJob {
     return new ScheduledJob(fireDate, START_EARLIER_IN_MINUTES, this.onTick);
   }
 
-  public createFrequentJob() {
+  public createFrequentJob(): FrequentJob {
     return new FrequentJob(FREQUENCY_IN_SECONDS, this.onTick);
   }
 

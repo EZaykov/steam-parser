@@ -1,5 +1,5 @@
 import { CronJob } from 'cron';
-import { Moment } from 'moment';
+import type { Moment } from 'moment';
 
 export class ScheduledJob extends CronJob implements IDownloadJob {
   constructor(
@@ -15,23 +15,28 @@ export class ScheduledJob extends CronJob implements IDownloadJob {
 }
 
 export class FrequentJob implements IDownloadJob {
-  public async start() {
+  public async start(): Promise<void> {
     await this.onTick();
-    this.interval = setInterval(this.onTick, this.frequency);
+    this.interval = setInterval(this.onTick, this.frequency); // eslint-disable-line
   }
 
-  public stop() {
-    if (this.interval) clearInterval(this.interval);
+  public stop(): void {
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
   }
 
   constructor(
     frequencyInSeconds: number,
-    private readonly onTick: () => Promise<void>,
+    private readonly onTick: () => Promise<void>
   ) {
-    this.frequency = frequencyInSeconds * 1000;
+    const msMultiplier = 1000;
+
+    this.frequency = frequencyInSeconds * msMultiplier;
   }
 
   private interval?: NodeJS.Timer;
+
   private readonly frequency: number;
 }
 

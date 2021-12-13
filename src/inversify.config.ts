@@ -21,11 +21,4 @@ Container.bind(spys.TYPES.Service).to(spys.Service).inSingletonScope();
   .concat(Container.bind(spys.TYPES.downloadProxyList).toFunction(spys.downloadProxyList))
   .map(v => v.whenAnyAncestorIs(spys.Service));
 
-/* -------------------------------------------------------------------------- */
-/*                                   Parser                                   */
-/* -------------------------------------------------------------------------- */
-import * as parser from './parser';
-
-Container.bind(parser.TYPES.ProxyManager).to(parser.ProxyManager).inSingletonScope();
-
 export { Container };

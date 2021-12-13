@@ -21,7 +21,7 @@ const listener: UpdateListener = async proxies => {
 
   const chunk = anonymousChunks[0];
 
-  const result = await Promise.all(chunk.map(proxy => tryToParse(proxy.address)));
+  await Promise.all(chunk.map(proxy => tryToParse(proxy.address)));
 
   //console.log(result);
 
