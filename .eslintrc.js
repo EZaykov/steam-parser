@@ -195,7 +195,6 @@ module.exports = {
       }
     ],
     'quotes': 'off',
-    '@typescript-eslint/quotes': ['error', 'single'],
     'no-return-await': 'off',
     '@typescript-eslint/return-await': 'error',
     'semi': 'off',
@@ -205,7 +204,8 @@ module.exports = {
     'space-infix-ops': 'off',
     '@typescript-eslint/space-infix-ops': ['error', {
       int32Hint: true
-    }]
+    }],
+    'spellcheck/spell-checker': ['warn']
   },
   /* -------------------------------------------------------------------------- */
   /*                                   config                                   */
@@ -221,13 +221,13 @@ module.exports = {
   plugins: [
     '@typescript-eslint',
     'jest',
-    'import'
+    'import',
+    'spellcheck'
   ],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'prettier',
     'plugin:import/recommended',
     'plugin:node/recommended-module'
   ],

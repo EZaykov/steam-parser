@@ -1,8 +1,8 @@
-import { InitialOptionsTsJest } from 'ts-jest';
+import { InitialOptionsTsJest } from "ts-jest";
 
 const config: InitialOptionsTsJest = {
-  preset: 'ts-jest',
-  testEnvironment: 'node'
+	preset: "ts-jest",
+	testEnvironment: "node"
 };
 
 module.exports = config;

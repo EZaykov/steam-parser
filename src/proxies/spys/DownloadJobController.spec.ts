@@ -1,108 +1,119 @@
-import 'reflect-metadata';
-import * as moment from 'moment';
-import * as di from 'inversify';
-import { TYPES } from './';
-import { ProxyList } from './ProxyList';
-import { DownloadJobController } from './DownloadJobController';
-import { DownloadJobFactory } from './DownloadJobFactory';
-import { DownloadEmitter } from './DownloadEmitter';
-import type { IDownloadJob } from './DownloadJobs';
-import { FrequentJob, ScheduledJob } from './DownloadJobs';
-import { EventEmitter } from 'events';
+import "reflect-metadata";
+import * as moment from "moment";
+import * as di from "inversify";
+import { TYPES } from "./";
+import { ProxyList } from "./ProxyList";
+import { DownloadJobController } from "./DownloadJobController";
+import { DownloadJobFactory } from "./DownloadJobFactory";
+import { DownloadEmitter } from "./DownloadEmitter";
+import type { IDownloadJob } from "./DownloadJobs";
+import { FrequentJob, ScheduledJob } from "./DownloadJobs";
+import { EventEmitter } from "events";
 
 let Container: di.Container;
 let controller: DownloadJobController;
-/* -------------------------------------------------------------------------- */
-/*                                    util                                    */
-/* -------------------------------------------------------------------------- */
-const startEarlierInSeconds = 0;
-const getCurrentJob: ReflectFn<IDownloadJob> = (jobController: DownloadJobController) =>
-  Reflect.get(jobController, 'currentJob') as IDownloadJob;
-const setHourlyJob: ReflectFn<void> = (jobController: DownloadJobController) =>
-  Reflect.set(jobController, 'currentJob', new ScheduledJob(moment(), startEarlierInSeconds, () => Promise.resolve()));
-const setSpamJob: ReflectFn<void> = (jobController: DownloadJobController) =>
-  Reflect.set(jobController, 'currentJob', new FrequentJob(startEarlierInSeconds, () => Promise.resolve()));
 
-type ReflectFn<T> = (jobController: DownloadJobController) => T;
+describe("pickJobBy (updateDate) method", () => {
+	let updateDate = moment();
 
-/* -------------------------------------------------------------------------- */
-/*                                    test                                    */
-/* -------------------------------------------------------------------------- */
+	describe("if updated", () => {
+		const updated = true;
 
-describe('pickJobBy (updateDate) method', () => {
-  let updateDate = moment();
+		it("should pick and run `ScheduledJob`", () => {
+			controller.use(updated, updateDate);
 
-  describe('if updated', () => {
-    const updated = true;
+			expect(getCurrentJob(controller)).toBeInstanceOf(ScheduledJob);
+		});
 
-    it('should pick and run `HourlyJob`', () => {
-      controller.use(updated, updateDate);
+		it("should pick and run `ScheduledJob` if `FrequentJob` is set", () => {
+			setFrequentJob(controller);
 
-      expect(getCurrentJob(controller)).toBeInstanceOf(ScheduledJob);
-    });
+			controller.use(updated, updateDate);
 
-    it('should pick and run `HourlyJob` if `SpamJob` is set', () => {
-      setSpamJob(controller);
+			expect(getCurrentJob(controller)).toBeInstanceOf(ScheduledJob);
+		});
 
-      controller.use(updated, updateDate);
+		it("should pick and run `FrequentJob` if `updateDate` in past more than one hour", () => {
+			const hours = 2;
 
-      expect(getCurrentJob(controller)).toBeInstanceOf(ScheduledJob);
-    });
+			updateDate = moment().subtract(hours, "hours");
 
-    it('should pick and run `SpamJob` if `updateDate` in past more than one hour', () => {
-      const hours = 2;
+			controller.use(updated, updateDate);
 
-      updateDate = moment().subtract(hours, 'hours');
+			expect(getCurrentJob(controller)).toBeInstanceOf(FrequentJob);
+		});
+	});
 
-      controller.use(updated, updateDate);
+	describe("if not updated", () => {
+		const updated = false;
 
-      expect(getCurrentJob(controller)).toBeInstanceOf(FrequentJob);
-    });
-  });
+		it("should pick and run `FrequentJob`", () => {
+			controller.use(updated, updateDate);
 
-  describe('if not updated', () => {
-    const updated = false;
+			expect(getCurrentJob(controller)).toBeInstanceOf(FrequentJob);
+		});
 
-    it('should pick and run `SpamJob`', () => {
-      controller.use(updated, updateDate);
+		it("should pick and run `FrequentJob` if `ScheduledJob` is set", () => {
+			setScheduledJob(controller);
 
-      expect(getCurrentJob(controller)).toBeInstanceOf(FrequentJob);
-    });
+			controller.use(updated, updateDate);
 
-    it('should pick and run `SpamJob` if `HourlyJob` is set', () => {
-      setHourlyJob(controller);
-
-      controller.use(updated, updateDate);
-
-      expect(getCurrentJob(controller)).toBeInstanceOf(FrequentJob);
-    });
-  });
+			expect(getCurrentJob(controller)).toBeInstanceOf(FrequentJob);
+		});
+	});
 });
 
 /* -------------------------------------------------------------------------- */
 /*                                    setup                                   */
 /* -------------------------------------------------------------------------- */
 beforeAll(() => {
-  Object.getPrototypeOf(EventEmitter.prototype).constructor = Object; // eslint-disable-line
-  Container = new di.Container({ skipBaseClassChecks: true });
+	Object.getPrototypeOf(EventEmitter.prototype).constructor = Object; // eslint-disable-line
+	Container = new di.Container({ skipBaseClassChecks: true });
 
-  Container.bind(TYPES.DownloadJobController).to(DownloadJobController);
+	Container.bind(TYPES.DownloadJobController).to(DownloadJobController);
 
-  [
-    Container.bind(TYPES.DownloadJobFactory).to(DownloadJobFactory),
-    Container.bind(TYPES.DownloadEmitter).to(DownloadEmitter)
-  ]
-    .map(v => v.inRequestScope())
-    .concat(Container.bind(TYPES.downloadProxyList).toFunction(
-      () => Promise.resolve(new ProxyList(moment(), []))
-    ))
-    .map(v => v.whenAnyAncestorIs(DownloadJobController));
+	[
+		Container.bind(TYPES.DownloadJobFactory).to(DownloadJobFactory),
+		Container.bind(TYPES.DownloadEmitter).to(DownloadEmitter)
+	]
+		.map((v) => v.inRequestScope())
+		.concat(
+			Container.bind(TYPES.downloadProxyList).toFunction(() =>
+				Promise.resolve(new ProxyList(moment(), []))
+			)
+		)
+		.map((v) => v.whenAnyAncestorIs(DownloadJobController));
 });
 
 beforeEach(() => {
-  controller = Container.get(TYPES.DownloadJobController);
+	controller = Container.get(TYPES.DownloadJobController);
 });
 
 afterEach(() => {
-  controller.clear();
+	controller.clear();
 });
+
+/* -------------------------------------------------------------------------- */
+/*                                    util                                    */
+/* -------------------------------------------------------------------------- */
+const startEarlierInSeconds = 0;
+
+function getCurrentJob(jobController: DownloadJobController): IDownloadJob {
+	return Reflect.get(jobController, "currentJob") as IDownloadJob;
+}
+
+function setScheduledJob(jobController: DownloadJobController): void {
+	Reflect.set(
+		jobController,
+		"currentJob",
+		new ScheduledJob(moment(), startEarlierInSeconds, () => Promise.resolve())
+	);
+}
+
+function setFrequentJob(jobController: DownloadJobController): void {
+	Reflect.set(
+		jobController,
+		"currentJob",
+		new FrequentJob(startEarlierInSeconds, () => Promise.resolve())
+	);
+}
