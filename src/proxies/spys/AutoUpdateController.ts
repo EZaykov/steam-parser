@@ -27,7 +27,8 @@ export class AutoUpdateController {
 	constructor(
 		@inject(TYPES.downloadProxyList)
 		private readonly downloadProxyList: DownloadProxyList,
-		@inject(TYPES.UpdateEmitter) private readonly updateEmitter: IUpdateEmitter,
+		@inject(TYPES.UpdateEmitter)
+		private readonly updateEmitter: IUpdateEmitter,
 		@inject(TYPES.DownloadJobController)
 		private readonly downloadJobController: DownloadJobController,
 		@inject(TYPES.DownloadEmitter)

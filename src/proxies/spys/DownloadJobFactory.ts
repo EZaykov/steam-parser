@@ -22,7 +22,9 @@ export class DownloadJobFactory {
 		@inject(TYPES.downloadProxyList) downloadProxyList: DownloadProxyList
 	) {
 		this.onTick = () =>
-			downloadProxyList().then((proxyList) => void downloadEmitter.emit("downloaded", proxyList));
+			downloadProxyList().then(
+				(proxyList) => void downloadEmitter.emit("downloaded", proxyList)
+			);
 	}
 
 	private readonly onTick: () => Promise<void>;

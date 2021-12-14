@@ -2,7 +2,11 @@ import { CronJob } from "cron";
 import type { Moment } from "moment";
 
 export class ScheduledJob extends CronJob implements IDownloadJob {
-	constructor(fireDate: Moment, startEarlierInSeconds: number, onTick: () => Promise<void>) {
+	constructor(
+		fireDate: Moment,
+		startEarlierInSeconds: number,
+		onTick: () => Promise<void>
+	) {
 		super(fireDate.clone().subtract(startEarlierInSeconds, "seconds"), onTick);
 	}
 }
@@ -19,7 +23,10 @@ export class FrequentJob implements IDownloadJob {
 		}
 	}
 
-	constructor(frequencyInSeconds: number, private readonly onTick: () => Promise<void>) {
+	constructor(
+		frequencyInSeconds: number,
+		private readonly onTick: () => Promise<void>
+	) {
 		const msMultiplier = 1000;
 
 		this.frequency = frequencyInSeconds * msMultiplier;

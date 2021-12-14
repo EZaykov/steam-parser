@@ -28,7 +28,9 @@ function parseProxyListTxt(text: string): ProxyList {
 
 function parseProxyLine(proxyLine: string): Proxy {
 	const [address, description, googlePassed] = proxyLine.split(" ");
-	const [countryCode, anonymous, sslSupport] = description.replace("!", "").split("-");
+	const [countryCode, anonymous, sslSupport] = description
+		.replace("!", "")
+		.split("-");
 
 	return {
 		address: address.trim(),

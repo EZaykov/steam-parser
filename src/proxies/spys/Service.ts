@@ -25,6 +25,7 @@ export class Service {
 	constructor(
 		@inject(TYPES.AutoUpdateController)
 		private readonly autoUpdateController: AutoUpdateController,
-		@inject(TYPES.UpdateEmitter) private readonly updateEmitter: IUpdateEmitter
+		@inject(TYPES.UpdateEmitter)
+		private readonly updateEmitter: IUpdateEmitter
 	) {}
 }

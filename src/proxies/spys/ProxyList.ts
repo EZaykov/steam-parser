@@ -11,5 +11,8 @@ export class ProxyList {
 		return this.updatedDate.isBetween(prevHour, this.downloadDate);
 	}
 
-	constructor(public readonly updatedDate: moment.Moment, public readonly proxies: Proxy[]) {}
+	constructor(
+		public readonly updatedDate: moment.Moment,
+		public readonly proxies: Proxy[]
+	) {}
 }
