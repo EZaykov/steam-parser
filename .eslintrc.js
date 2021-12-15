@@ -236,7 +236,7 @@ module.exports = {
   },
   settings: {
     'import/parsers': {
-      '@typescript-eslint/parser': ['.ts']
+      '@typescript-eslint/parser': ['.ts', '.d.ts']
     },
     'import/resolver': {
       typescript: {

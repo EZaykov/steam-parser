@@ -2,48 +2,46 @@ import { injectable, inject } from "inversify";
 import * as moment from "moment";
 import { TYPES } from "./types";
 import type { IDownloadJob } from "./DownloadJobs";
-import { FrequentJob } from "./DownloadJobs";
+import type { CONFIG } from "../../app.config";
 import { DownloadJobFactory } from "./DownloadJobFactory";
 
 @injectable()
 export class DownloadJobController {
 	public clear(): void {
-		this.currentJob?.stop();
-		delete this.currentJob;
+		this.jobCurrent?.stop();
+		this.jobCurrent = undefined;
 	}
 
-	public use(isUpdated: boolean, currentUpdateDate: moment.Moment): void {
+	public use(isUpdated: boolean, currentUpdateDate: moment.Moment): IDownloadJob {
 		const nextDownloadDate = this.getNextDownloadDate(currentUpdateDate);
 
-		if (!isUpdated || this.isPast(nextDownloadDate)) {
-			return void this.fireFrequently();
-		}
+		this.jobCurrent?.stop();
+		this.jobCurrent =
+			!isUpdated || this.isPast(nextDownloadDate)
+				? this.jobFactory.createFrequentJob(this.jobInterval.frequent)
+				: this.jobFactory.createScheduledJob(nextDownloadDate);
+		this.jobCurrent.start();
 
-		this.scheduleBy(nextDownloadDate);
+		return this.jobCurrent;
 	}
 
 	constructor(
+		@inject("CONFIG") config: typeof CONFIG,
 		@inject(TYPES.DownloadJobFactory)
 		private readonly jobFactory: DownloadJobFactory
-	) {}
-
-	private currentJob?: IDownloadJob;
-
-	private scheduleBy(date: moment.Moment): void {
-		this.currentJob?.stop();
-		this.currentJob = this.jobFactory.createScheduledJob(date);
-		this.currentJob.start();
+	) {
+		this.jobInterval = {
+			frequent: config.SPYSProxiesService.frequentJob.interval,
+			scheduled: config.SPYSProxiesService.scheduledJob.interval
+		};
 	}
 
-	private fireFrequently(): void {
-		if (this.currentJob instanceof FrequentJob) {
-			return;
-		}
+	private jobCurrent?: IDownloadJob;
 
-		this.currentJob?.stop();
-		this.currentJob = this.jobFactory.createFrequentJob();
-		this.currentJob.start();
-	}
+	private readonly jobInterval: {
+		frequent: number;
+		scheduled: number;
+	};
 
 	private isPast(date: moment.Moment): boolean {
 		const noDiff = 0;
@@ -52,8 +50,6 @@ export class DownloadJobController {
 	}
 
 	private getNextDownloadDate(date: moment.Moment): moment.Moment {
-		const nextUpdateIn = 1; // hours
-
-		return date.clone().add(nextUpdateIn, "hour");
+		return date.clone().add(this.jobInterval.scheduled, "milliseconds");
 	}
 }

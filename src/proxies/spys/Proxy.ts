@@ -4,6 +4,6 @@ export interface Proxy {
 		countryCode: string;
 		anonymous: boolean;
 		googlePassed: boolean;
-		sslSupport: boolean;
+		SSLSupport: boolean;
 	};
 }

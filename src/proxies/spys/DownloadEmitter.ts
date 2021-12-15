@@ -9,8 +9,5 @@ export interface IDownloadEmitter extends EventEmitter {
 	emit(eventName: "downloaded", proxyList: ProxyList): boolean;
 	on(eventName: "downloaded", listener: (proxyList: ProxyList) => void): this;
 	once(eventName: "downloaded", listener: (proxyList: ProxyList) => void): this;
-	removeListener(
-		eventName: "downloaded",
-		listener: (proxyList: ProxyList) => void
-	): this;
+	removeListener(eventName: "downloaded", listener: (proxyList: ProxyList) => void): this;
 }

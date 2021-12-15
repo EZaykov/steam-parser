@@ -8,9 +8,9 @@ const URL = "http://spys.me/proxy.txt";
 export const downloadProxyList: DownloadProxyList = () =>
 	fetch(URL)
 		.then((res) => res.text())
-		.then((text) => parseProxyListTxt(text));
+		.then((text) => parseProxyListText(text));
 
-function parseProxyListTxt(text: string): ProxyList {
+function parseProxyListText(text: string): ProxyList {
 	const allLines = text.split("\n");
 	const headerIndentLineIndex = allLines.indexOf("");
 	const headerExtraLinesToCut = 1;
@@ -28,9 +28,7 @@ function parseProxyListTxt(text: string): ProxyList {
 
 function parseProxyLine(proxyLine: string): Proxy {
 	const [address, description, googlePassed] = proxyLine.split(" ");
-	const [countryCode, anonymous, sslSupport] = description
-		.replace("!", "")
-		.split("-");
+	const [countryCode, anonymous, SSLSupport] = description.replace("!", "").split("-");
 
 	return {
 		address: address.trim(),
@@ -38,7 +36,7 @@ function parseProxyLine(proxyLine: string): Proxy {
 			googlePassed: googlePassed.trim() === "+",
 			countryCode: countryCode.trim(),
 			anonymous: anonymous.trim() !== "N",
-			sslSupport: !!sslSupport && sslSupport.trim() === "S"
+			SSLSupport: !!SSLSupport && SSLSupport.trim() === "S"
 		}
 	};
 }

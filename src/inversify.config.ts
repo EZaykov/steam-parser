@@ -1,32 +1,29 @@
 import "reflect-metadata";
-import * as di from "inversify";
+import * as DI from "inversify";
+import { CONFIG } from "./app.config";
 
-const Container = new di.Container({
+const Container = new DI.Container({
 	skipBaseClassChecks: true
 });
 
-/* -------------------------------------------------------------------------- */
-/*                                 SpysService                                */
-/* -------------------------------------------------------------------------- */
-import * as spys from "./proxies/spys";
+Container.bind("CONFIG").toConstantValue(CONFIG);
 
-Container.bind(spys.TYPES.Service).to(spys.Service).inSingletonScope();
+/* -------------------------------------------------------------------------- */
+/*                                 SPYSService                                */
+/* -------------------------------------------------------------------------- */
+import * as SPYS from "./proxies/SPYS";
+
+Container.bind(SPYS.TYPES.Service).to(SPYS.Service).inSingletonScope();
 
 [
-	Container.bind(spys.TYPES.AutoUpdateController).to(spys.AutoUpdateController),
-	Container.bind(spys.TYPES.UpdateEmitter).to(spys.UpdateEmitter),
-	Container.bind(spys.TYPES.DownloadJobController).to(
-		spys.DownloadJobController
-	),
-	Container.bind(spys.TYPES.DownloadJobFactory).to(spys.DownloadJobFactory),
-	Container.bind(spys.TYPES.DownloadEmitter).to(spys.DownloadEmitter)
+	Container.bind(SPYS.TYPES.AutoUpdateController).to(SPYS.AutoUpdateController),
+	Container.bind(SPYS.TYPES.UpdateEmitter).to(SPYS.UpdateEmitter),
+	Container.bind(SPYS.TYPES.DownloadJobController).to(SPYS.DownloadJobController),
+	Container.bind(SPYS.TYPES.DownloadJobFactory).to(SPYS.DownloadJobFactory),
+	Container.bind(SPYS.TYPES.DownloadEmitter).to(SPYS.DownloadEmitter)
 ]
 	.map((v) => v.inRequestScope())
-	.concat(
-		Container.bind(spys.TYPES.downloadProxyList).toFunction(
-			spys.downloadProxyList
-		)
-	)
-	.map((v) => v.whenAnyAncestorIs(spys.Service));
+	.concat(Container.bind(SPYS.TYPES.downloadProxyList).toFunction(SPYS.downloadProxyList))
+	.map((v) => v.whenAnyAncestorIs(SPYS.Service));
 
 export { Container };

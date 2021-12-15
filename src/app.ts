@@ -2,8 +2,8 @@ import "reflect-metadata";
 import * as _ from 'lodash';
 import fetch from 'node-fetch';
 import { Container } from './inversify.config';
-import * as spys from './proxies/spys';
-import { UpdateListener } from './proxies/spys/UpdateEmitter';
+import * as spys from './proxies/SPYS';
+import { UpdateListener } from './proxies/SPYS/UpdateEmitter';
 import { HttpsProxyAgent as ProxyAgent } from 'https-proxy-agent';
 
 const dataUrl = 'https://steamcommunity.com/market/search/render/?search_descriptions=0&sort_column=default&sort_dir=desc&appid=578080&norender=1&count=100';

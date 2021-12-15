@@ -4,17 +4,14 @@ import { DownloadProxyList } from "./downloadProxyList";
 import { IDownloadEmitter } from "./DownloadEmitter";
 import { TYPES } from "./types";
 
-const START_EARLIER_IN_MINUTES = 5;
-const FREQUENCY_IN_SECONDS = 30;
-
 @injectable()
 export class DownloadJobFactory {
 	public createScheduledJob(fireDate: moment.Moment): ScheduledJob {
-		return new ScheduledJob(fireDate, START_EARLIER_IN_MINUTES, this.onTick);
+		return new ScheduledJob(fireDate, this.onTick);
 	}
 
-	public createFrequentJob(): FrequentJob {
-		return new FrequentJob(FREQUENCY_IN_SECONDS, this.onTick);
+	public createFrequentJob(interval: number): FrequentJob {
+		return new FrequentJob(interval, this.onTick);
 	}
 
 	constructor(
