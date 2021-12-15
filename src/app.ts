@@ -2,13 +2,13 @@ import "reflect-metadata";
 import * as _ from 'lodash';
 import fetch from 'node-fetch';
 import { Container } from './inversify.config';
-import * as spys from './proxies/SPYS';
-import { UpdateListener } from './proxies/SPYS/UpdateEmitter';
+import * as spys from './subsystems/SPYSProxies';
+import { UpdateListener } from './subsystems/SPYSProxies/UpdateEmitter';
 import { HttpsProxyAgent as ProxyAgent } from 'https-proxy-agent';
 
 const dataUrl = 'https://steamcommunity.com/market/search/render/?search_descriptions=0&sort_column=default&sort_dir=desc&appid=578080&norender=1&count=100';
 
-const spysService = Container.get<spys.Service>(spys.TYPES.Service);
+const spysService = Container.get<spys.SubSystem>(spys.TYPES.SubSystem);
 
 const listener: UpdateListener = async proxies => {
   spysService.removeUpdateListener(listener);

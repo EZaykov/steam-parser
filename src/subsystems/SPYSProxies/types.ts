@@ -1,5 +1,5 @@
 export const TYPES = {
-	Service: Symbol("Service"),
+	SubSystem: Symbol("SubSystem"),
 	DownloadJobController: Symbol("DownloadJobController"),
 	DownloadJobFactory: Symbol("DownloadJobFactory"),
 	UpdateEmitter: Symbol("UpdateEmitter"),

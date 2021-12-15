@@ -5,7 +5,7 @@ import { IUpdateEmitter } from "./UpdateEmitter";
 import type { UpdateListener } from "./UpdateEmitter";
 
 @injectable()
-export class Service {
+export class SubSystem {
 	public async startAutoUpdates(): Promise<void> {
 		await this.autoUpdateController.startAutoUpdates();
 	}

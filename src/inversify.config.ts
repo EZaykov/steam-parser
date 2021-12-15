@@ -11,9 +11,9 @@ Container.bind("CONFIG").toConstantValue(CONFIG);
 /* -------------------------------------------------------------------------- */
 /*                                 SPYSService                                */
 /* -------------------------------------------------------------------------- */
-import * as SPYS from "./proxies/SPYS";
+import * as SPYS from "./subsystems/SPYSProxies";
 
-Container.bind(SPYS.TYPES.Service).to(SPYS.Service).inSingletonScope();
+Container.bind(SPYS.TYPES.SubSystem).to(SPYS.SubSystem).inSingletonScope();
 
 [
 	Container.bind(SPYS.TYPES.AutoUpdateController).to(SPYS.AutoUpdateController),
@@ -24,6 +24,6 @@ Container.bind(SPYS.TYPES.Service).to(SPYS.Service).inSingletonScope();
 ]
 	.map((v) => v.inRequestScope())
 	.concat(Container.bind(SPYS.TYPES.downloadProxyList).toFunction(SPYS.downloadProxyList))
-	.map((v) => v.whenAnyAncestorIs(SPYS.Service));
+	.map((v) => v.whenAnyAncestorIs(SPYS. SubSystem));
 
 export { Container };
