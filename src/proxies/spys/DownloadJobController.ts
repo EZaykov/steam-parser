@@ -7,22 +7,25 @@ import { DownloadJobFactory } from "./DownloadJobFactory";
 
 @injectable()
 export class DownloadJobController {
-	public clear(): void {
-		this.jobCurrent?.stop();
-		this.jobCurrent = undefined;
-	}
-
 	public use(isUpdated: boolean, currentUpdateDate: moment.Moment): IDownloadJob {
-		const nextDownloadDate = this.getNextDownloadDate(currentUpdateDate);
+		const nextDownloadDate = getNextDownloadDate(
+			currentUpdateDate,
+			this.jobInterval.scheduled
+		);
 
 		this.jobCurrent?.stop();
 		this.jobCurrent =
-			!isUpdated || this.isPast(nextDownloadDate)
+			!isUpdated || isPastDate(nextDownloadDate)
 				? this.jobFactory.createFrequentJob(this.jobInterval.frequent)
 				: this.jobFactory.createScheduledJob(nextDownloadDate);
 		this.jobCurrent.start();
 
 		return this.jobCurrent;
+	}
+
+	public clear(): void {
+		this.jobCurrent?.stop();
+		this.jobCurrent = undefined;
 	}
 
 	constructor(
@@ -42,14 +45,14 @@ export class DownloadJobController {
 		frequent: number;
 		scheduled: number;
 	};
+}
 
-	private isPast(date: moment.Moment): boolean {
-		const noDiff = 0;
+function getNextDownloadDate(date: moment.Moment, interval: number): moment.Moment {
+	return date.clone().add(interval, "milliseconds");
+}
 
-		return date.diff(moment()) < noDiff;
-	}
+function isPastDate(date: moment.Moment): boolean {
+	const noDiff = 0;
 
-	private getNextDownloadDate(date: moment.Moment): moment.Moment {
-		return date.clone().add(this.jobInterval.scheduled, "milliseconds");
-	}
+	return date.diff(moment()) < noDiff;
 }
