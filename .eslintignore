@@ -1,6 +1,7 @@
 node_modules
 dist
 jest.config.ts
-*.js
+.eslintrc*
+cucumber.js
 *.json
 app.ts

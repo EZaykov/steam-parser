@@ -24,6 +24,6 @@ Container.bind(SPYS.TYPES.SubSystem).to(SPYS.SubSystem).inSingletonScope();
 ]
 	.map((v) => v.inRequestScope())
 	.concat(Container.bind(SPYS.TYPES.downloadProxyList).toFunction(SPYS.downloadProxyList))
-	.map((v) => v.whenAnyAncestorIs(SPYS. SubSystem));
+	.map((v) => v.whenAnyAncestorIs(SPYS.SubSystem));
 
 export { Container };
